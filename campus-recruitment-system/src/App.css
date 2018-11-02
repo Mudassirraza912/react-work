@@ -1,0 +1,116 @@
+body{
+  /* opacity: 0.4; */
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-image: url('http://www.todogenius.com/todogenius/Overview_files/background2bis.jpg');
+  /* color: #ffffff */
+}
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  animation: App-logo-spin infinite 20s linear;
+  height: 80px;
+}
+
+.App-header {
+  background-color: white;
+  height: 150px;
+  padding: 20px;
+  color: #222;
+}
+
+.App-title {
+  font-size: 1.5em;
+}
+
+.App-intro {
+  font-size: large;
+}
+
+@keyframes App-logo-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+input{
+ border: none;
+outline: none;
+border-bottom:2px solid rgb(99, 119, 141);
+width: 60%;
+padding: 10px;
+margin: 7px;
+font-size: 15px
+}
+label{
+  color: rgb(80, 190, 233)
+}
+button{
+  background-color: #ffffff;
+  color: rgb(80, 190, 233);
+  border: 2px solid rgb(80, 190, 233);
+  padding: 8px;
+  border-radius: 5px;
+  margin: 5px;
+  transition: all 0.5s ease 0s;
+  outline: none
+}
+button:hover{
+  background-color: rgb(80, 190, 233);
+  color: #ffffff;
+  border: 2px solid rgb(80, 190, 233);
+}
+.vacancy{
+  width: 70%;
+  border: 2px solid  rgb(80, 190, 233);
+  border-radius: 5px;
+  line-height: 10px;
+  margin: 10px;
+  color:gray;
+  box-shadow: 10px 10px 10px gray
+
+}
+.vacancy p{
+  color:  rgb(80, 190, 233);
+}
+h1{
+  color: gray
+}
+.post{
+  margin-bottom: 0px;
+  border-radius:50%;
+  float: right;
+  /* padding: 10px; */
+  font-size: 30px;
+  width: 50px;
+  background-color: rgb(80, 190, 233);
+  color: white;
+  margin-right: 20px
+}
+.post:hover{
+  background-color: #ffffff;
+  color: rgb(80, 190, 233);
+}
+button:active{
+
+  opacity: 0.9;
+  box-shadow: 20px 15px 20px gray;
+  transition: all 0.5s ease 0s;
+
+}
+.profile{
+  color: rgb(80, 190, 233);
+}
+span{
+  color: gray
+}
+.disable{
+background-color: grey
+
+}
+.disable:hover{
+background-color: grey
+
+}
+
