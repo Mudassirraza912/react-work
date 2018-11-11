@@ -8,6 +8,8 @@ import Dashboard from '../dashboard/dashboard'
 // Import FilePond styles
 import 'filepond/dist/filepond.min.css';
 import { Button, TextField} from '@material-ui/core'
+import { connect } from 'react-redux'
+import {updateUser} from '../../Redux/Actions/authActions'
 
 
 
@@ -26,7 +28,8 @@ class Setup extends Component{
             url:[],
             direction:{},
             dashboard:false,
-            users:[]
+            users:[],
+            userinfo:[]
 
         }
         this.nickName = this.nickName.bind(this)
@@ -44,7 +47,7 @@ class Setup extends Component{
  componentWillMount(){
 const {users} = this.state
      console.log(firebase.auth().currentUser.uid)
-     firebase.database().ref('/Users/' + firebase.auth().currentUser.uid + '/').on('child_added' , snap =>{
+     firebase.database().ref('/' + firebase.auth().currentUser.uid + '/myData/').on('child_added' , snap =>{
          console.log(snap.val())
          users.push(snap.val())
          this.setState({
@@ -53,6 +56,10 @@ const {users} = this.state
          })
      })
  }
+
+ componentWillReceiveProps(nextProps) {
+    console.log('nextProps ==>',nextProps , nextProps.user);
+  }
 
  nickName(e){
      console.log(e.target.value)
@@ -80,13 +87,16 @@ uploadPic() {
     (progress) => {
 
     },
-    (error) => {
+    (error) =>{
         console.log(error)
     },
     () => {
         firebase.storage().ref(`images/`).child(files[0].name).getDownloadURL().then((URL) => {
             console.log(URL)
             url.push(URL)
+            this.setState({
+                url,
+            })
 
         })
         .catch((err) => {
@@ -107,6 +117,9 @@ uploadPic() {
         firebase.storage().ref(`images/`).child(files[1].name).getDownloadURL().then((URL) => {
             console.log(URL)
             url.push(URL)
+            this.setState({
+                url,
+            })
         })
         .catch((err) => {
             console.log(err)
@@ -126,6 +139,9 @@ uploadPic() {
         firebase.storage().ref(`images/`).child(files[2].name).getDownloadURL().then((URL) => {
             console.log(URL)
             url.push(URL)
+            this.setState({
+                url,
+            })
         })
         .catch((err) => {
             console.log(err)
@@ -143,10 +159,22 @@ uploadPic() {
      console.log(nickName,phoneNo)
      return(
          <div>
-        <label>Nick Name</label>
-        <input required placeholder='Enter Your Nick Name' onChange={this.nickName} />
-        <label>Phone No</label>
-        <input type='Number' placeholder='Enter Your Phone No..' onChange={this.phoneNo} />
+        <TextField required placeholder='Enter Your Nick Name' onChange={this.nickName} id="outlined-email-input"
+          label="Nick name"
+          
+          type="email"
+          name="email"
+          autoComplete="email"
+          margin="normal"
+          variant="outlined" /><br/><br/>
+        <TextField type='Number' placeholder='Enter Your Phone No..' onChange={this.phoneNo} id="outlined-email-input"
+          label="Phone No"
+          
+          type="email"
+          name="email"
+          autoComplete="email"
+          margin="normal"
+          variant="outlined"/><br/><br/>
         <Button color= 'primary' onClick={this.compeleteS1} required >Next</Button>
          </div>
      )
@@ -276,7 +304,7 @@ pond(){
                     })} */}
                     
                 </FilePond>
-                {files.length === 3 ? <Button color='primary'  onClick={this.uploadPic}>Next</Button> : <p>all 3 are required</p>}
+                {files.length >= 3 ? <Button color='primary'  onClick={this.uploadPic}>Next</Button> : <p>all 3 are required</p>}
 
 
         </div>
@@ -339,24 +367,36 @@ this.setState({
 }
 
 finally(){
-    const {nickName,phoneNo,url,beverages,duration,direction} = this.state
+    const {nickName,phoneNo,url,beverages,duration,direction, userinfo} = this.state
 var userInfo = {
     nickName : nickName,
     phoneNo:phoneNo,
     url:url,
     beverages:beverages,
     duration:duration,
-    direction:direction
+    direction:direction,
+    uid:firebase.auth().currentUser.uid,
+    profileUrl:firebase.auth().currentUser.photoURL,
+    profileName:firebase.auth().currentUser.displayName
 }
+userinfo.push(userInfo)
+this.setState({
+    userinfo
+})
+firebase.database().ref('/Users/').push(userInfo)
+firebase.database().ref('/' + firebase.auth().currentUser.uid + '/myData/' ).push(userInfo)
 
-firebase.database().ref('/Users/' + firebase.auth().currentUser.uid + '/' ).push(userInfo)
+this.props.updateUser(userinfo)
+
 }
 
 stepfour(){
+    const {url} = this.state
+    console.log(url.length,'length!!!!!!!!!!!!!!!!!!',url)
     return(
         <div>
             <Map  lat={this.lat}/>
-            <Button color='primary' onClick={this.finally}>Done</Button>
+         {url.length === 3 ?  <Button color='primary' onClick={this.finally}>Done</Button> : <p>Just a second....</p>} 
         </div>
     )
 }
@@ -364,6 +404,7 @@ stepfour(){
 render(){
     const {step1,step2,step3,files,beverages,duration,url,dashboard} = this.state
     console.log(files,beverages,duration,url)
+    console.log(this.props.user)
     return(
         <div>
             <h1>Welcome to setup</h1>
@@ -378,5 +419,17 @@ render(){
 
 }
 
+const mapStateToProps = (state) => {
+    console.log(state)
+    return {
+      user: state.reducer.user
+    }
+   }
+    const mapDispatchToProps = (dispatch) => {
+    return {
+      updateUser: (user) => dispatch(updateUser(user))
+    }
+  }
 
-export default Setup; 
+
+export default connect(mapStateToProps, mapDispatchToProps)(Setup) 
