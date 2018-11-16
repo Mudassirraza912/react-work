@@ -8,11 +8,13 @@ import firebase from '../config/firebase'
 // import img1 from '../images/img1.jpg'; 
 // import img3 from '../images/img2.jpg'; 
 // import img2 from '../images/img3.jpg'; 
+import AppBar from '../Constants/appBar'
+import history from '../config/history'
 
 import '../../App.css'
 import { Slide } from 'react-slideshow-image';
 import swal from 'sweetalert'
-import {Avatar, Button, TextField, Radio, ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails, ListItem, ListItemText } from '@material-ui/core'
+import { Avatar, Button, TextField, Radio, ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails, ListItem, ListItemText } from '@material-ui/core'
 import { withScriptjs, withGoogleMap, GoogleMap, Marker, DirectionsRenderer } from "react-google-maps"
 // import{ ExpandMoreIcon } from '@material-ui/icons'
 import PropReq from './propsal&Req'
@@ -54,9 +56,10 @@ class Dashboard extends Component {
             recieverUid: '',
             proposals: [],
             userData: '',
-            recieverName:'',
-            recieverPhoto:'',
-            propSend:[]
+            recieverName: '',
+            recieverPhoto: '',
+            propSend: [],
+            UserUid:''
         }
         this.actionLeft = this.actionLeft.bind(this)
         this.setMet = this.setMet.bind(this)
@@ -73,6 +76,9 @@ class Dashboard extends Component {
 
     componentWillMount() {
         const { data, slideImages, direction, proposals, userData, propSend } = this.state
+
+        var userUid = localStorage.getItem('userUid')
+        this.setState({ UserUid : userUid })
         firebase.database().ref('/Users/').on('child_added', snap => {
             // console.log(snap.val(),snAp.url,imagerUrl);
             var snAp = snap.val()
@@ -80,7 +86,7 @@ class Dashboard extends Component {
             var latlng = snAp.direction
             var dish = snAp.beverages
             var imagerUrl = snAp.url
-            data.push({ nickName: snAp.nickName, name: snAp.profileName, url: snAp.url, uid: snAp.uid, profileUrl : snAp.profileUrl });
+            data.push({ nickName: snAp.nickName, name: snAp.profileName, url: snAp.url, uid: snAp.uid, profileUrl: snAp.profileUrl });
             console.log(snap.val(), snAp.url, data);
 
             slideImages.push(...snAp.url)
@@ -94,34 +100,36 @@ class Dashboard extends Component {
             })
         })
 
-        firebase.database().ref('/' + firebase.auth().currentUser.uid + '/myData/').on('child_added', snap => {
+        firebase.database().ref('/' + userUid + '/myData/').on('child_added', snap => {
             console.log(snap.val())
             this.setState({
                 userData: snap.val()
             })
         })
 
-        firebase.database().ref('/' + firebase.auth().currentUser.uid + '/proposalRequest/').on('child_added', (propsalSnap) => {
-            var propSnap = propsalSnap.val()
+        // firebase.database().ref('/' + userUid + '/proposalRequest/').on('child_added', (propsalSnap) => {
+        //     var propSnap = propsalSnap.val()
 
-            proposals.push(propSnap)
+        //     proposals.push(propSnap)
 
-            this.setState({
-                proposals,
-            })
-        })
+        //     this.setState({
+        //         proposals,
+        //     })
+        // })
 
 
-        firebase.database().ref('/' + firebase.auth().currentUser.uid + '/proposalSend/').on('child_added', (propsalSnap) => {
-            var propSnap = propsalSnap.val()
+        // firebase.database().ref('/' + userUid + '/proposalSend/').on('child_added', (propsalSnap) => {
+        //     var propSnap = propsalSnap.val()
 
-            propSend.push(propSnap)
+        //     propSend.push(propSnap)
 
-            this.setState({
-                propSend,
-            })
-        })
+        //     this.setState({
+        //         propSend,
+        //     })
+        // })
 
+        // var UserUid = localStorage.getItem('userUid')
+        // this.setState({ UserUid })
     }
 
     showlocations() {
@@ -173,7 +181,7 @@ class Dashboard extends Component {
             <div>
                 <MyMapComponent
                     isMarkerShown
-                    googleMapURL="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=geometry,drawing,places"
+                    googleMapURL="https://maps.googleapis.com/maps/api/js?key=AIzaSyCoXJkZJwmDy3KBHE-KlYovubNRXmJzJcE&v=3.exp&libraries=geometry,drawing,places"
                     loadingElement={<div style={{ height: `100%` }} />}
                     containerElement={<div style={{ height: `400px` }} />}
                     mapElement={<div style={{ height: `100%` }} />}
@@ -196,7 +204,7 @@ class Dashboard extends Component {
 
         const { selectLocation, direction, } = this.state
         const DirectionsService = new google.maps.DirectionsService();
-
+        console.log(direction.latitude,direction.loongitude,selectLocation.location.lat, selectLocation.location.lng )
         DirectionsService.route({
             origin: new google.maps.LatLng(direction.latitude, direction.loongitude),
             destination: new google.maps.LatLng(selectLocation.location.lat, selectLocation.location.lng),
@@ -214,7 +222,7 @@ class Dashboard extends Component {
 
 
     renderCalender() {
-        const {selectDate} = this.state
+        const { selectDate } = this.state
         return (
             <div>
                 <TextField
@@ -231,15 +239,15 @@ class Dashboard extends Component {
                         shrink: true,
                     }}
                 />
-             {!selectDate ?  <Button disabled color='primary' onClick={this.sendProposal}>Send</Button> : 
-            <Button  color='primary' onClick={this.sendProposal}>Send</Button>}
+                {!selectDate ? <Button disabled color='primary' onClick={this.sendProposal}>Send</Button> :
+                    <Button color='primary' onClick={this.sendProposal}>Send</Button>}
             </div>
         )
     }
 
     sendProposal() {
-        const { data, slideImages, beverages, selectDate, selectLocation, recieverUid, userData, recieverName, recieverPhoto } = this.state
-        console.log(data, slideImages, beverages, selectDate, selectLocation, recieverUid, )
+        const { data, slideImages, beverages, selectDate, selectLocation, recieverUid, userData, recieverName, recieverPhoto, UserUid } = this.state
+        console.log(data, slideImages, beverages, selectDate, selectLocation, recieverUid)
         var proposalObj = {
             senderData: userData,
             senderImages: slideImages,
@@ -247,15 +255,15 @@ class Dashboard extends Component {
             endTime: selectDate,
             startTime: `${new Date().toDateString()}T${new Date().toLocaleTimeString()}`,
             selectLocation: selectLocation,
-            senderUid: firebase.auth().currentUser.uid,
+            senderUid: UserUid,
             recieverUid: recieverUid,
             users: data,
             status: 'Pending',
-            recieverName:recieverName,
+            recieverName: recieverName,
             recieverPhoto: recieverPhoto
         }
 
-        // firebase.database().ref('/' + firebase.auth().currentUser.uid + '/proposalSend/').push(proposalObj)
+        // firebase.database().ref('/' + this.state.userUid + '/proposalSend/').push(proposalObj)
         // firebase.database().ref('/' + recieverUid + '/proposalRequest/').push(proposalObj)
         firebase.database().ref('/Proposals/').push(proposalObj)
 
@@ -315,12 +323,12 @@ class Dashboard extends Component {
         })
     }
     actionRight(e, name, uid, photo) {
-        const {recieverName, recieverPhoto} = this.state
+        const { recieverName, recieverPhoto } = this.state
         console.log(e, uid)
         this.setState({
             setMet: false,
             recieverUid: uid,
-            recieverName:name,
+            recieverName: name,
             recieverPhoto: photo
         })
         swal({
@@ -355,32 +363,37 @@ class Dashboard extends Component {
         })
     }
     render() {
-        const { setMet, data, slideImages, location, calender, selectDate, selectLocation, beverages, locationRender, direction,proposals, propSend } = this.state
+        const { setMet, data, slideImages, location, calender, selectDate, selectLocation, beverages, locationRender, direction, proposals, propSend } = this.state
         console.log('IMAGE URL', slideImages, 'DATE', selectDate, 'SELECT LOCATIOM', selectLocation, 'BEVEREGES', beverages, 'MY DIRECTION', direction)
         return (
 
-            <div>
+            <div className='App'>
+
+                <AppBar />
+
                 <center>
                     {!calender && !setMet && <div>
 
                         {proposals.length == 0 || proposals.length == 0 &&
-                        <h2>You haven’t done any meeting yet! <br /> try creating a new meeting! </h2>
+                            <h2>You haven’t done any meeting yet! <br /> try creating a new meeting! </h2>
                         }
-                         
 
-                        <Button color='primary' onClick={this.setMet}> Set a meeting</Button>
+
+                        <Button style={{marginTop: '10px', marginBottom: '10px'}} color='primary' onClick={this.setMet}> Set a meeting</Button>
                     </div>
                     }
 
-                    {!locationRender && !calender && !location && setMet && <div className='card'>
+                    {!locationRender && !calender && !location && setMet && <div className='card' style={{
+                        marginTop: '20px'
+                    }}>
                         <Cards onEnd={() => this.action('function end')} className='master-root'>
                             {data.map((item, index) => {
                                 console.log(item.uid, item)
                                 return (
                                     <Card
                                         onSwipeLeft={() => console.log('swipe left')}
-                                        onSwipeRight={() => this.actionRight('swipe right', item.name, item.uid, item.profileUrl)} 
-                                        >
+                                        onSwipeRight={() => this.actionRight('swipe right', item.name, item.uid, item.profileUrl)}
+                                    >
                                         <div>
                                             <Slide {...properties}>
                                                 <div className="each-slide">
@@ -389,12 +402,12 @@ class Dashboard extends Component {
                                                     </div>
                                                 </div>
                                                 <div className="each-slide">
-                                                    <div style={{ 'backgroundImage': `url(${item.url[1]})`, height: '320px', width: '320px', backgroundRepeat: 'none', backgroundSize: 'cover', backgroundColor: 'gray'  }}>
+                                                    <div style={{ 'backgroundImage': `url(${item.url[1]})`, height: '320px', width: '320px', backgroundRepeat: 'none', backgroundSize: 'cover', backgroundColor: 'gray' }}>
                                                         <span>Picture 2</span>
                                                     </div>
                                                 </div>
                                                 <div className="each-slide">
-                                                    <div style={{ 'backgroundImage': `url(${item.url[2]})`, height: '320px', width: '320px', backgroundRepeat: 'none', backgroundSize: 'cover', backgroundColor: 'gray'  }}>
+                                                    <div style={{ 'backgroundImage': `url(${item.url[2]})`, height: '320px', width: '320px', backgroundRepeat: 'none', backgroundSize: 'cover', backgroundColor: 'gray' }}>
                                                         <span>Picture 3</span>
                                                     </div>
                                                 </div>
@@ -421,7 +434,7 @@ class Dashboard extends Component {
                 {!calender && location && this.renderLocations()}
                 {calender && this.renderCalender()}
                 {locationRender && this.renderDirection()}
-                {!calender && !setMet && <PropReq/>}
+                {!calender && !setMet && <PropReq />}
             </div>
         )
     }
