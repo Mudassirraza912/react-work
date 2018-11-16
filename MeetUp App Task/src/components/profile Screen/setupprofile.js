@@ -7,10 +7,11 @@ import Map from './map'
 import Dashboard from '../dashboard/dashboard'
 // Import FilePond styles
 import 'filepond/dist/filepond.min.css';
-import { Button, TextField} from '@material-ui/core'
+import { Button, TextField, Checkbox} from '@material-ui/core'
 import { connect } from 'react-redux'
 import {updateUser} from '../../Redux/Actions/authActions'
-
+import AppBar from '../Constants/appBar'
+import history from '../config/history'
 
 
 class Setup extends Component{
@@ -29,7 +30,8 @@ class Setup extends Component{
             direction:{},
             dashboard:false,
             users:[],
-            userinfo:[]
+            userinfo:[],
+            UserUid:''
 
         }
         this.nickName = this.nickName.bind(this)
@@ -45,9 +47,9 @@ class Setup extends Component{
     }
 
  componentWillMount(){
-const {users} = this.state
-     console.log(firebase.auth().currentUser.uid)
-     firebase.database().ref('/' + firebase.auth().currentUser.uid + '/myData/').on('child_added' , snap =>{
+const {users, UserUid} = this.state
+     console.log(this.state.userUid)
+     firebase.database().ref('/' + this.state.userUid + '/myData/').on('child_added' , snap =>{
          console.log(snap.val())
          users.push(snap.val())
          this.setState({
@@ -55,6 +57,10 @@ const {users} = this.state
              dashboard:true
          })
      })
+
+     var userUid = localStorage.getItem('userUid')
+     this.setState({ UserUid : userUid })
+     console.log(UserUid)
  }
 
  componentWillReceiveProps(nextProps) {
@@ -159,23 +165,25 @@ uploadPic() {
      console.log(nickName,phoneNo)
      return(
          <div>
+             <center>
         <TextField required placeholder='Enter Your Nick Name' onChange={this.nickName} id="outlined-email-input"
           label="Nick name"
           
-          type="email"
-          name="email"
+          type="name"
+          name="name"
           autoComplete="email"
           margin="normal"
           variant="outlined" /><br/><br/>
         <TextField type='Number' placeholder='Enter Your Phone No..' onChange={this.phoneNo} id="outlined-email-input"
           label="Phone No"
           
-          type="email"
-          name="email"
+          type="Number"
+          name="Number"
           autoComplete="email"
           margin="normal"
           variant="outlined"/><br/><br/>
         <Button color= 'primary' onClick={this.compeleteS1} required >Next</Button>
+        </center>
          </div>
      )
  }
@@ -304,7 +312,7 @@ pond(){
                     })} */}
                     
                 </FilePond>
-                {files.length >= 3 ? <Button color='primary'  onClick={this.uploadPic}>Next</Button> : <p>all 3 are required</p>}
+                {files.length >= 3 ?<center><Button color='primary'  onClick={this.uploadPic}>Next</Button></center>  : <center><p>all 3 are required</p></center>}
 
 
         </div>
@@ -339,17 +347,19 @@ s3Compelete() {
 thirdStep() {
     return(
         <div>
+            <center>
             <h2>Select Beverages</h2>
-           <input value='coffee' onChange={this.beverages} type="checkbox" />Coffee <br/>
-           <input value='Juice' onChange={this.beverages} type="checkbox" />Juice <br/>
-           <input value='Cocktail' onChange={this.beverages} type="checkbox" />Cocktail <br/>
+           <Checkbox color='primary' value='coffee' onChange={this.beverages} type="checkbox" />Coffee <br/>
+           <Checkbox color='primary' value='Juice' onChange={this.beverages} type="checkbox" />Juice <br/>
+           <Checkbox color='primary' value='Cocktail' onChange={this.beverages} type="checkbox" />Cocktail <br/>
 
             <h2>Select Duration</h2>
-           <input value='20 Min' onChange={this.duration} type="checkbox" />20 Min <br/>
-           <input value='60 Min' onChange={this.duration} type="checkbox" />60 Min <br/>
-           <input value='120 Min' onChange={this.duration} type="checkbox" />120 Min <br/>
+           <Checkbox color='primary' value='20 Min' onChange={this.duration} type="checkbox" />20 Min <br/>
+           <Checkbox color='primary' value='60 Min' onChange={this.duration} type="checkbox" />60 Min <br/>
+           <Checkbox color='primary' value='120 Min' onChange={this.duration} type="checkbox" />120 Min <br/>
 
            <Button color='primary' onClick={this.s3Compelete}>Next</Button>
+           </center>
         </div>
     )
 }
@@ -367,7 +377,8 @@ this.setState({
 }
 
 finally(){
-    const {nickName,phoneNo,url,beverages,duration,direction, userinfo} = this.state
+    const {nickName,phoneNo,url,beverages,duration,direction, userinfo, UserUid} = this.state
+    console.log(UserUid)
 var userInfo = {
     nickName : nickName,
     phoneNo:phoneNo,
@@ -375,7 +386,7 @@ var userInfo = {
     beverages:beverages,
     duration:duration,
     direction:direction,
-    uid:firebase.auth().currentUser.uid,
+    uid: UserUid,
     profileUrl:firebase.auth().currentUser.photoURL,
     profileName:firebase.auth().currentUser.displayName
 }
@@ -383,10 +394,11 @@ userinfo.push(userInfo)
 this.setState({
     userinfo
 })
+history.push(`/Dashboard${UserUid}`)
 firebase.database().ref('/Users/').push(userInfo)
-firebase.database().ref('/' + firebase.auth().currentUser.uid + '/myData/' ).push(userInfo)
+firebase.database().ref('/' + UserUid + '/myData/' ).push(userInfo)
 
-this.props.updateUser(userinfo)
+// this.props.updateUser(userinfo)
 
 }
 
@@ -396,7 +408,7 @@ stepfour(){
     return(
         <div>
             <Map  lat={this.lat}/>
-         {url.length === 3 ?  <Button color='primary' onClick={this.finally}>Done</Button> : <p>Just a second....</p>} 
+       <center>{url.length === 3 ?  <Button color='primary' onClick={this.finally}>Done</Button> : <p>Just a second....</p>} </center>
         </div>
     )
 }
@@ -407,29 +419,31 @@ render(){
     console.log(this.props.user)
     return(
         <div>
-            <h1>Welcome to setup</h1>
+           <AppBar />
             {!dashboard && !step1 && this.FirstStep()}
             { !dashboard && step1 && !step2 && this.SecondStep()}
             {!dashboard && step1 && step2 && !step3  && this.thirdStep()}
              {!dashboard && step3 && this.stepfour()}
+             <center>
             {dashboard && <Dashboard/>}
+            </center>
         </div>
     )
 }
 
 }
 
-const mapStateToProps = (state) => {
-    console.log(state)
-    return {
-      user: state.reducer.user
-    }
-   }
-    const mapDispatchToProps = (dispatch) => {
-    return {
-      updateUser: (user) => dispatch(updateUser(user))
-    }
-  }
+// const mapStateToProps = (state) => {
+//     console.log(state)
+//     return {
+//       user: state.reducer.user
+//     }
+//    }
+//     const mapDispatchToProps = (dispatch) => {
+//     return {
+//       updateUser: (user) => dispatch(updateUser(user))
+//     }
+//   }
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(Setup) 
+export default Setup
