@@ -159,6 +159,10 @@ class PropReq extends Component {
                                                     )
                                                 })}</p>
                                                 <Divider style = {{width:'100%'}}/>
+                                                <Divider style = {{width:'100%'}}/>
+                                                <Button>
+                                                <AddToCalendar buttonTemplate={this.state.icon}  listItems={this.state.items} event={this.state.event}><AccessAlarm />Delete</AddToCalendar>
+                                                </Button>
                                                 <div className='AccRej'>
                                                 <Button variant="contained" color="primary" onClick={this.AccEpt.bind(this, value, index)}>
                                                     Accept
@@ -220,6 +224,10 @@ class PropReq extends Component {
                                                         </ul>
                                                     )
                                                 })}</p>
+                                                <Divider style = {{width:'100%'}}/>
+                                                <Button>
+                                                <AddToCalendar buttonTemplate={this.state.icon}  listItems={this.state.items} event={this.state.event}><AccessAlarm />Delete</AddToCalendar>
+                                                </Button>
                                             </div>
                                         </ExpansionPanelDetails>
                                     </ExpansionPanel>)
@@ -233,7 +241,7 @@ class PropReq extends Component {
                     }
 
                 </TabContainer>}
-                <AddToCalendar buttonTemplate={this.state.icon}  listItems={this.state.items} event={this.state.event}><AccessAlarm />Delete</AddToCalendar>
+                
             </div>
         )
     }
@@ -244,3 +252,4 @@ class PropReq extends Component {
 }
 
 export default PropReq;
+
