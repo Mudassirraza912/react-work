@@ -18,6 +18,8 @@ import { Avatar, Button, TextField, Radio, ExpansionPanel, ExpansionPanelSummary
 import { withScriptjs, withGoogleMap, GoogleMap, Marker, DirectionsRenderer } from "react-google-maps"
 // import{ ExpandMoreIcon } from '@material-ui/icons'
 import PropReq from './propsal&Req'
+import { connect } from 'react-redux'
+import {updateUser} from '../../Redux/Actions/authActions'
 
 
 // const data = [ {image:"img1", name:'Haris Ansari' , nickName:'Haris'}, {image:"img2", name:'Muneeb Ansari' , nickName:'Muneeb'}, {image:"img1", name:'Muhammad Umar' , nickName:'Umar'}]; 
@@ -88,6 +90,7 @@ class Dashboard extends Component {
             var imagerUrl = snAp.url
             data.push({ nickName: snAp.nickName, name: snAp.profileName, url: snAp.url, uid: snAp.uid, profileUrl: snAp.profileUrl });
             console.log(snap.val(), snAp.url, data);
+            // this.props.updateUser(data)
 
             slideImages.push(...snAp.url)
             this.setState({
@@ -247,6 +250,7 @@ class Dashboard extends Component {
 
     sendProposal() {
         const { data, slideImages, beverages, selectDate, selectLocation, recieverUid, userData, recieverName, recieverPhoto, UserUid } = this.state
+        
         console.log(data, slideImages, beverages, selectDate, selectLocation, recieverUid)
         var proposalObj = {
             senderData: userData,
@@ -265,6 +269,7 @@ class Dashboard extends Component {
 
         // firebase.database().ref('/' + this.state.userUid + '/proposalSend/').push(proposalObj)
         // firebase.database().ref('/' + recieverUid + '/proposalRequest/').push(proposalObj)
+        console.log("Id" ,UserUid, "Proposals" , proposalObj)
         firebase.database().ref('/Proposals/').push(proposalObj)
 
         this.setState({
@@ -364,7 +369,8 @@ class Dashboard extends Component {
     }
     render() {
         const { setMet, data, slideImages, location, calender, selectDate, selectLocation, beverages, locationRender, direction, proposals, propSend } = this.state
-        console.log('IMAGE URL', slideImages, 'DATE', selectDate, 'SELECT LOCATIOM', selectLocation, 'BEVEREGES', beverages, 'MY DIRECTION', direction)
+        // console.log('IMAGE URL', slideImages, 'DATE', selectDate, 'SELECT LOCATIOM', selectLocation, 'BEVEREGES', beverages, 'MY DIRECTION', direction)
+        console.log(this.props.user)
         return (
 
             <div className='App'>
@@ -440,8 +446,21 @@ class Dashboard extends Component {
     }
 }
 
-export default Dashboard;
 
+// const mapStateToProps = (state) => {
+//     return ({
+//       user: state.authReducer.user
+//     })
+//    }
+
+//     const mapDispatchToProps = (dispatch) => {
+//     return ({
+//       updateUser: (user) => dispatch(updateUser(user))
+//     })
+//   }
+
+
+export default Dashboard
 
 
 const MyMapComponent = withScriptjs(withGoogleMap((props) =>
